@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		
+		<!-- Title: Web Mapping -->
+		<title>Web Mapping Daniel Rice</title>
+		<!-- Author: Daniel Rice -->
+		<!-- Produced on: 10-13-18 -->
+		<!-- CSS Link -->
+		<link href="style.css" type="text/css" rel="stylesheet">
+		<!--<link type="text/css" rel="stylesheet" href='https://ajax.googleapis.com/ajax/libs/dojo/1.12.1/dijit/themes/claro/claro.css'>
+    -->
+    	<style type="text/css">
+        	html, body {
+            	width: 100%;
+            	height: 100%;
+            	margin: 0;
+            	overflow:hidden;
+     	   	}
+	
+        	#borderContainer {
+            	width: 100%;
+            	height: 100%;
+        		}
+        	
+        	
+    	</style>
+		<!-- Dojo -->
+		<script>dojoConfig = {parseOnLoad: true}</script>
+    	<script src='https://ajax.googleapis.com/ajax/libs/dojo/1.12.1/dojo/dojo.js'></script>
+
+  		<script>
+        require(["dojo/parser", "dijit/layout/ContentPane", "dijit/layout/BorderContainer", "dijit/layout/TabContainer", "dijit/layout/AccordionContainer"]);
+    	</script>		
+	</head>
+	
+	<body class="claro">
+	<div data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="design:'headline', gutters:true, liveSplitters:true" id="borderContainer">
+		
+		<!-- Header Pane -->
+		<!--<header>
+			<div class="header">
+				GEO 4422/5408: Web Mapping
+			</div>
+		</header>-->
+		
+		<!-- Top Navigation Pane -->
+		<div class="topnav" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="splitter:false, region:'top'">
+			GEO 4422/5408: Web Mapping <br>
+			<div data-dojo-type="dijit/layout/ContentPane"><a href="index.html">Home</a></div>
+			<div data-dojo-type="dijit/layout/ContentPane"><a href="http://www.txstate.edu" target="_blank">Texas State University</a></div>
+			<div data-dojo-type="dijit/layout/ContentPane"><a href="http://www.geo.txstate.edu" target="_blank">Department of Geo</a></div>
+			<!--<ul>
+				<li> <a href="index.html">Home</a></li>
+				<li> <a href="http://www.txstate.edu" target="_blank">Texas State University</a></li>
+				<li> <a href="http://www.geo.txstate.edu" target="_blank">Department of Geo</a></li>
+			</ul>-->
+		</div>
+		
+		<!-- Left Navigation Pane -->
+		<div class="leftnav" data-dojo-type="dijit/layout/AccordionContainer" data-dojo-props="splitter:false, region:'leading'">
+			<!--<h1>My Projects</h1>-->
+			<div data-dojo-type="dijit/layout/ContentPane" title="My Projects">
+				<a href="https://waterdatafortexas.org" target="_blank">Assignment 1</a>
+				<br>
+				<a href="https://sites.google.com/view/darindanielrice" target="_blank">Assignment 2</a>
+			</div>
+			<div data-dojo-type="dijit/layout/ContentPane" title="My Code">
+				<a href="https://github.com/GrizzlyDatums" target="_blank">GitHub</a>
+			</div>
+			<!--<ul id="myprojects">
+				<li><a href="https://waterdatafortexas.org" target="_blank">Assignment 1</a></li>
+				<br>
+				<li><a href="https://sites.google.com/view/darindanielrice" target="_blank">Assignment 2</a></li>
+			</ul>-->
+		</div>
+		
+		<!-- Main Pane -->
+		<div class="main" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="splitter:true, region:'center'">
+			<h2 id="hello"><script src="external.js"></script></h2>
+			<!-- Image of Daniel and Leroy -->
+			<img src="DanielNLeroy.jpg">
+			<!-- Me Container-->
+			<div id="me">
+				<h3><strong>Daniel Rice</strong></h3>
+				<p>
+					<strong>Program:</strong> Master of Applied Geography <br>
+					<strong>Major:</strong> Geographic Information Science <br>
+					<strong>Email:</strong> <a href="mailto:dr1208@txstate.edu">dr1208@txstate.edu</a><br>
+				</p>
+			</div>
+			<!-- Research Container -->
+			<div id="research">
+				<h4><strong>Research Interest:</strong></h4>
+				<ul>
+					<li>Geographic Information Science</li>
+					<li>Water Utility Operations</li>
+					<li>Water Policy</li>
+				</ul>
+			</div>
+			<!-- Visitor Form -->
+			<div id="form">
+				<h5><strong>Visitor Info</strong></h5>
+				<form action="/my-handling-form-page" method="post" name="visitorinfo" id="visitorinfo">
+					Name:  <input type="text" name="name" id="name"><br />
+					Phone: <input type="text" name="phone"><br />
+					Email:  <input type="email" name="email"><br />
+					<button onclick="subFunction()">Submit</button>
+					<script src="visitor.jpg"></script>				
+				</form>
+			</div>
+		</div>
+		
+		<!-- Bottom Navigation Pane 
+		<div class="bottomnav" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="splitter:false, region:'bottom'">
+			<ul>
+				<li> <a href="index.html">Home</a></li>
+				<li> <a href="http://www.txstate.edu" target="_blank">Texas State University</a></li>
+				<li> <a href="http://www.geo.txstate.edu" target="_blank">Department of Geo</a></li>
+			</ul>
+		</div>--->
+		<!-- Footer -->
+		<div class="footer" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="splitter:false, region:'bottom'">
+			<ul>
+				<li>Copyright 2018</li>
+				<li><strong>Daniel Rice</strong></li>
+				<li>All rights reserved</li>
+				<li id="date"> <script src="time.js"></script> </li>
+			</ul>
+		</div>
+		
+	</div>
+	</body>
+</html>
