@@ -1,0 +1,178 @@
+body {
+	margin: 0 auto;
+	background-color: #466995;
+	color: white;
+	font-size: 14px;
+}
+
+/* Header Bar */
+.header {
+	height: 40px;
+	width: 1200px;
+	text-align: center;
+	color: white;
+	padding: 1px;
+}
+
+/* Top Navigation Bar */
+.topnav {
+	left: 350px;
+	top: 0px;
+	background-color: #466995;
+	height: 60px;
+	width: 500px;
+	border: 1px solid #466995;
+	padding: 1px;
+	text-align: center;
+}
+.topnav div {	
+	display: inline;
+	font-family: Arial;
+	font-size: 16px;
+	text-align: center;
+	padding: 10px 10px;
+	color: white;
+}
+
+/* Left Navigation Bar */
+.leftnav {
+	width: 200px;
+	height: 500px;
+	border: 2px solid;
+	color: white;
+	text-align: center;
+	vertical-align: middle;
+	background-color: rgba(128, 128, 128, 0.5);
+	padding: .5px;
+}
+.leftnav div {
+	font-size: 16px;
+	text-align: center;
+	vertical-align: middle;
+	padding: 1px 1px;
+	color: white;
+}
+h1 { /* My Projects Heading */
+	color: white;
+	font-family: Times;
+	font-size: 16px;
+	text-align: center;
+}
+
+/* Main Container */
+.main {
+	padding: .5px;
+	border: 1px solid #466995;
+	background-image: url("Night.jpg");
+	background-color: #466995;
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;	
+}
+.main #hello { /* Welcome to Web Mapping Heading */
+	color: white;
+	font-family: Times;
+	font-size: 28px;
+	text-align: center;
+	top: 130px;
+	font-weight: bold;
+}
+img { /* Transform Image of Me */
+	transform: rotate(270deg);
+	float: left;
+	padding: 20px;
+	width: 200px;
+	height:200px;
+}
+.main #me { /* Me Bio Container */
+	position: absolute;
+	top: 130px;
+	left: 320px;
+	bottom: 50%;
+	width: 30%;
+	height: 30%;
+	text-align: center;
+	background-color: rgba(0, 0, 255, 0.0);
+}
+h3 { /* Name Heading */
+	color: white;
+	font-family: Times;
+	font-size: 18px;
+	text-align: center;
+}
+p { /* Paragraph about me */
+	color: white;
+	font-family: Helvetica;
+	font-size: 16px;
+	text-align: left;
+}
+.main #research { /* Research Container */
+	position: absolute;
+	top: 325px;
+	left: 40px;
+	bottom: 25%;
+	width: 40%;
+	height: 40%;
+	background-color: rgba(0, 0, 255, 0.0);
+}
+h4 { /* Research Interest Heading */
+	color: white;
+	font-family: Times;
+	font-size: 18px;
+	text-align: left;
+}
+.main #research li { /* Research List */
+	text-align: justify;
+	font-size: 16px;
+}
+#form { /* Visitor Form */
+	position: absolute;
+	top: 400px;
+	left: 320px;
+	width: 40%;
+	height: 40%;
+	font-size: 16px;
+	font-family: times;
+}
+#form h5 {
+	font-size: 18px;
+	font-family: times;
+}
+
+/* Bottom Navigation Bar 
+.bottomnav {
+	position: absolute;
+	left: 350px;
+	top: 600px;
+	background-color: green;
+	height: 40px;
+	width: 500px;
+	border: 1px solid green;
+	text-align: center;
+	padding: 1px;
+}
+.bottomnav li {
+	display: inline;
+	font-family: Arial;
+	font-size: 16px;
+	text-align: center;
+	padding: 10px 10px;
+	color: white;
+}*/
+
+/* Footer*/ 
+.footer {
+	height: 60px;
+	width: 1200px;
+	position: relative;
+	top: -475px;
+	text-align: center;
+	padding: 1px;
+	background-color: #466995;
+}
+.footer li {
+	display: inline;
+	text-align: center;
+	color: white;
+	padding: 10px 10px;
+} 
