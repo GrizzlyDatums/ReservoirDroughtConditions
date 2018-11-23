@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    	
+    <link type="text/css" rel="stylesheet" href='https://ajax.googleapis.com/ajax/libs/dojo/1.12.1/dijit/themes/claro/claro.css'>
+   <
+    
+    
+    
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow:hidden;
+        }
+
+        #borderContainer {
+            width: 100%;
+            height: 100%;
+        }
+    
+     #viewDiv {
+      height: 50px;
+      width: 200px;
+    
+      
+      margin: 0;
+      padding: 0;
+      font-family: verdana;
+    }
+    
+#draw-polygon {
+	height: 100px;
+	width: 100px;
+	font-family: verdana;
+	background-color: white;
+	position: absolute; 
+}
+    </style>
+    <style>
+    	
+    #centerMap 
+    {
+		margin: 5px;
+		position: relative;
+		overflow: hidden;
+		top: 10px;
+		left:10px ;
+		width: 450px;
+		height: 450px;
+		text-align: center;
+		border: 2px solid;
+	}
+    	
+    	#sliderBox
+    	
+    	{
+    		height: 50px;
+    		
+    		
+    	}
+    	
+    	
+    	
+    </style>
+    
+    <style>
+    html,
+ 
+
+
+  </style>
+   
+   <!-- two column style script -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+    box-sizing: border-box;
+}
+
+/* Create two equal columns that floats next to each other */
+.column {
+    float: left;
+    width: 200px;
+    height: 20px;
+    
+    padding: 10px;
+    height: 300px; /* Should be removed. Only for demonstration */
+}
+
+/* Clear floats after the columns */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* slider  */
+
+.slidecontainer {
+    width: 10%;
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 25px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+</style>
+    
+    <script>dojoConfig = {parseOnLoad: true}</script>
+    <script src='https://ajax.googleapis.com/ajax/libs/dojo/1.12.1/dojo/dojo.js'>
+    	
+    </script>
+    
+
+   <!-- <script>
+        require(["dojo/parser", 
+        "dijit/layout/AccordionContainer", 
+        "dijit/layout/BorderContainer", 
+        "dijit/layout/AccordionContainer"]);
+        
+   </script> -->
+    <script>
+      var map, timeSlider;
+      require([
+        "dojo/parser", 
+        "dijit/layout/AccordionContainer", 
+        "dijit/layout/BorderContainer", 
+        "esri/map", 
+        "esri/layers/FeatureLayer", 
+        "esri/TimeExtent", 
+        "esri/layers/TimeInfo",
+        "esri/renderers/ClassBreaksRenderer",
+        "esri/symbols/SimpleMarkerSymbol", 
+        "esri/symbols/SimpleLineSymbol",
+        "esri/dijit/editing/TemplatePicker", 
+        "esri/dijit/TimeSlider",
+        "esri/renderers/TimeClassBreaksAger", 
+        "esri/renderers/TemporalRenderer",
+        "dojo/parser", 
+        "dojo/_base/array", 
+        "esri/Color", 
+        "dojo/dom", 
+        "dojo/date",
+        "esri/views/MapView",
+      "esri/Graphic",
+      "esri/geometry/Polygon",
+      "esri/geometry/geometryEngine",
+        
+        "dijit/layout/BorderContainer", "dijit/layout/ContentPane", "dojo/domReady!"
+      ], function(
+        Map, FeatureLayer, TimeExtent, TimeInfo,
+        ClassBreaksRenderer,
+        SimpleMarkerSymbol, SimpleLineSymbol,
+        TemplatePicker, TimeSlider,
+        TimeClassBreaksAger, TemporalRenderer,
+        parser, arrayUtils, Color, dom, date
+      ) {
+        parser.parse();
+       /*  map = new Map("map", {
+          basemap: "topo",
+          center: [-99, 31],
+          slider: false,
+          zoom:3 */
+        });
+        map.on("load", mapLoaded);   
+
+        function mapLoaded() {
+          // feature layer
+          //problem!
+          var featureLayer = new FeatureLayer("https://www.arcgis.com/home/item.html?id=095808fda2514d0fbcd721569678ddb2, 
+            mode: FeatureLayer.MODE_SNAPSHOT,
+            outFields: [ "*" ]
+          });
+    var timeExtent = new TimeExtent();
+          timeExtent.endTime = new Date("10/6/2009");
+          timeExtent.startTime = new Date("9/24/2013");
+          
+          featureLayer.setDefinitionExpression("mag > 2");
+          featureLayer.setTimeDefinition(timeExtent);
+          featureLayer.on("load", featureLayerLoaded);
+
+          // temporal renderer
+          /*var observationRenderer = new ClassBreaksRenderer(new SimpleMarkerSymbol(), "mag");
+          observationRenderer.addBreak(7, 12, new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 24, new SimpleLineSymbol().setStyle(SimpleLineSymbol.STYLE_SOLID).setColor(new Color([100,100,100])),new Color([0,0,0,0])));
+
+          observationRenderer.addBreak(6, 7, new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 21, new SimpleLineSymbol().setStyle(SimpleLineSymbol.STYLE_SOLID).setColor(new Color([100,100,100])),new Color([0,0,0,0])));
+
+          observationRenderer.addBreak(5, 6, new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 18,new SimpleLineSymbol().setStyle(SimpleLineSymbol.STYLE_SOLID).setColor(new Color([100,100,100])),new Color([0,0,0,0])));
+
+          observationRenderer.addBreak(4, 5, new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 15,new SimpleLineSymbol().setStyle(SimpleLineSymbol.STYLE_SOLID).setColor(new Color([100,100,100])),new Color([0,0,0,0])));
+
+          observationRenderer.addBreak(3, 4, new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 12,new SimpleLineSymbol().setStyle(SimpleLineSymbol.STYLE_SOLID).setColor(new Color([100,100,100])),new Color([0,0,0,0])));
+
+          observationRenderer.addBreak(2, 3, new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 9,new SimpleLineSymbol().setStyle(SimpleLineSymbol.STYLE_SOLID).setColor(new Color([100,100,100])),new Color([0,0,0,0])));
+
+          observationRenderer.addBreak(0, 2, new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 6,new SimpleLineSymbol().setStyle(SimpleLineSymbol.STYLE_SOLID).setColor(new Color([100,100,100])),new Color([0,0,0,0]))); */
+
+          
+          //build a legend for the temporal renderer using the template picker
+          var symbols = arrayUtils.map(observationRenderer.infos,function(info){
+            return  {label: info.minValue + " - " + info.maxValue,symbol:info.symbol};
+          });
+          symbols.reverse(); //flip the array so the lowest magnitude symbol displays on top
+   
+          var infos = [
+           /* { minAge: 48, maxAge: Infinity, color: new dojo.Color([255,0,0])},
+            { minAge: 24, maxAge: 48, color: new dojo.Color([49,154,255])},
+            { minAge: 0, maxAge: 24, color: new dojo.Color([255,255,8])} */
+          ];
+        /*    var ageSymbols = [];
+          ageSymbols.push({label: "Less than 1 month",symbol: new SimpleLineSymbol().setStyle(SimpleLineSymbol.STYLE_SOLID).setColor(new Color([255,0,0])).setWidth(10)});
+          ageSymbols.push({label: "1 - 6 months",symbol: new SimpleLineSymbol().setStyle(SimpleLineSymbol.STYLE_SOLID).setColor(new Color([49,154,255])).setWidth(10)});
+          ageSymbols.push({label: "6+ months",symbol: new SimpleLineSymbol().setStyle(SimpleLineSymbol.STYLE_SOLID).setColor(new Color([255,255,8])).setWidth(10)});
+
+         var legend = new TemplatePicker({
+            items : symbols,
+            rows: 7,
+            columns: 1
+          }, "magnitudeDiv");
+          legend.startup();  */   
+
+        /*  var legend2 = new TemplatePicker({
+            items : ageSymbols,
+            rows: 3,
+            columns: 1
+          }, "ageDiv");
+          legend2.startup();   */
+          
+          var ager = new TimeClassBreaksAger(infos, TimeClassBreaksAger.UNIT_WEEKS);
+          var renderer = new TemporalRenderer(observationRenderer, null, null, ager);
+          featureLayer.setRenderer(renderer);
+
+          map.addLayer(featureLayer);
+          
+          //resize the map when the browser resizes
+          // registry.byId("map").on("resize", map.resize);
+        }
+
+        function featureLayerLoaded(evt) {
+          // create time slider
+          timeSlider = new TimeSlider({ style: "width: 100px; height: 50px"}, dom.byId("timeSliderDiv"));
+          timeSlider.setThumbCount(1);
+          timeSlider.createTimeStopsByTimeInterval(evt.layer.getTimeDefinition(), 1, TimeInfo.UNIT_WEEKS);
+          timeSlider.setThumbIndexes([0]);
+          timeSlider.on("time-extent-change", displayTimeInfo);
+          timeSlider.startup();
+          map.setTimeSlider(timeSlider);
+          timeSlider.play();
+        }
+
+        function displayTimeInfo(timeExtent) {
+          var info = timeExtent.startTime.toDateString() + 
+            " &nbsp;&nbsp;<i>to<\/i>&nbsp;&nbsp; " + 
+            timeExtent.endTime.toUTCString();
+          dom.byId("timeInfo").innerHTML = info;
+        }
+      });
+      
+       Draw,
+      Map, MapView,
+      Graphic,
+      Polygon,
+      geometryEngine
+    ) {
+
+    /*  var map = new Map({
+        basemap: "streets"
+      });
+
+      var view = new MapView({
+        container: "viewDiv",
+        map: map,
+        center: [-99.018, 31.9686],
+        zoom: 6 */
+      });
+
+      // add the button for drawing polygons underneath zoom buttons
+      view.ui.add("draw-polygon", "bottom-left");
+
+      var draw = new Draw({
+        view: view
+      });
+
+      // draw polygon button
+      document.getElementById("draw-polygon").addEventListener("click",
+        function() {
+          view.graphics.removeAll();
+          // create() will return a reference to an instance of PolygonDrawAction
+          var action = draw.create("polygon");
+
+          // focus the view to activate keyboard shortcuts for drawing polygons
+          view.focus();
+
+          // listen polygonDrawAction events to give immediate visual feedback
+          // to users as the polygon is being drawn on the view.
+          action.on("vertex-add", drawPolygon);
+          action.on("cursor-update", drawPolygon);
+          action.on("vertex-remove", drawPolygon);
+          action.on("redo", drawPolygon);
+          action.on("undo", drawPolygon);
+          action.on("draw-complete", drawPolygon);
+        });
+
+      // this function is called from the polygon draw action events
+      // to provide a visual feedback to users as they are drawing a polygon
+      function drawPolygon(event) {
+        var vertices = event.vertices;
+
+        //remove existing graphic
+        view.graphics.removeAll();
+
+        // create a new polygon
+        var polygon = new Polygon({
+          rings: vertices,
+          spatialReference: view.spatialReference
+        });
+
+        // create a new graphic representing the polygon, add it to the view
+        var graphic = new Graphic({
+          geometry: polygon,
+          symbol: {
+            type: "simple-fill", // autocasts as SimpleFillSymbol
+            color: [178, 102, 234, 0.8],
+            style: "solid",
+            outline: { // autocasts as SimpleLineSymbol
+              color: [255, 255, 255],
+              width: 2
+            }
+          }
+        });
+
+        view.graphics.add(graphic);
+
+        // calculate the area of the polygon
+        var area = geometryEngine.geodesicArea(polygon, "acres");
+        if (area < 0) {
+          // simplify the polygon if needed and calculate the area again
+          var simplifiedPolygon = geometryEngine.simplify(polygon);
+          if (simplifiedPolygon) {
+            area = geometryEngine.geodesicArea(simplifiedPolygon, "acres");
+          }
+        }
+        // start displaying the area of the polygon
+        labelAreas(polygon, area);
+      }
+
+      //Label polyon with its area
+      function labelAreas(geom, area) {
+        var graphic = new Graphic({
+          geometry: geom.centroid,
+          symbol: {
+            type: "text",
+            color: "black",
+            haloColor: "black",
+            haloSize: "1px",
+            text: area.toFixed(2) + " acres",
+            xoffset: 3,
+            yoffset: 3,
+            font: { // autocast as Font
+              size: 14,
+              family: "sans-serif"
+            }
+          }
+        });
+        view.graphics.add(graphic);
+      }
+    });
+    </script>
+    
+</head>
+<body class="claro">
+<div data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="design:'headline', gutters:true, liveSplitters:true" id="borderContainer">
+    
+    <div data-dojo-type="dijit/layout/AccordionContainer" data-dojo-props="splitter:true, region:'leading'">
+    	<div data-dojo-type="dijit/layout/AccordionContainer" title="Accordion Name 1">
+    		<!-- Content for accordion pane #1 -->
+    		<p><a href="https://droughtmonitor.unl.edu">United States Drought Monitor</a></p>
+			<p><a href="https://waterdatafortexas.org">Water Data for Texas</a></p>
+    		
+    	</div>
+        <div data-dojo-type="dijit/layout/AccordionContainer" title="Accordion Name 2">
+        	
+        	
+        	<!-- Content for accordion pane #2 -->
+        	
+        	<div id="viewDiv">
+    			<div id="draw-polygon" class="esri-widget--button esri-widget esri-interactive" title="Draw and measure polygon">
+      				<p>Click here to calculate the
+      				area affected by drought</p>
+      			</div>
+    			
+  			</div>
+        	
+        </div> 
+      <!-- <div data-dojo-type="dijit/layout/AccordionContainer" title="Accordion Name 3">
+        	Content for accordion pane #3
+      </div> -->
+    </div>
+    
+    <div data-dojo-type="dijit/layout/TabContainer" data-dojo-props="splitter:true, region:'center'">
+    	<div id="test" data-dojo-type="dijit/layout/AccordionContainer" title="Home">
+    		<!-- Content for tab pane #1 -->
+    		<div class="embed-container">
+    			<iframe 
+    			width="500" 
+    			height="400" 
+    			frameborder="0" 
+    			scrolling="no" 
+    			marginheight="0" 
+    			marginwidth="0" 
+    			title="Final_ProjectGEO4422" 
+    			src="https://www.arcgis.com/apps/Embed/index.html?webmap=095808fda2514d0fbcd721569678ddb2&extent=-107.815,25.8833,-93.6206,36.4075&zoom=true&previewImage=false&scale=true&legendlayers=true&disable_scroll=true&theme=light">
+    			
+    			
+    			</iframe>
+    			
+    			</div>
+    			
+    			<!--
+    			
+    			-->
+    			
+<!-- new embed-->
+
+		
+	
+		<!-- embedded code -->
+     
+  			
+  			<div id="sliderBox">
+    	
+    	<div class="row">
+  <div class="column" style="background-color:#aaa;">
+  <div id="timeInfo" class="labelText"></div>
+        <div id="timeSliderDiv" ></div>
+       <!-- imported time slider -->
+      
+      <!-- <div id="header" 
+          data-dojo-type="dijit/layout/ContentPane" 
+          data-dojo-props="region:'top'" 
+          class="dijitBorders" style="height:15px;">  -->
+      <center>
+        <span class="headerText">Lake Levels</span>
+        <div id="timeInfo" class="labelText"></div>
+        <div id="timeSliderDiv" ></div>
+      </center>
+    <!-- </div>  -->
+<div class="slidecontainer">
+  				 <input type="range" min="1" max="208" value="104"> 
+				</div>
+    <p>2009 . . . . . . . . . . . . 2013</p>
+    <div id="sliderContainer" class="esri-widget">
+      		<span id="sliderValue"> </span>
+      	<!--	<div id="sliderInnerContainer">
+      			
+        	<!--	<div id="sliderLabels">
+          		<span> 2009 </span>
+          		<span> 2013 </span>
+       		</div> -->
+        		<!--<div class="slidecontainer">
+  
+       		 </div> -->
+      <!-- 	</div> -->
+     	</div>
+    
+  </div>
+  <!-- <div class="column" style="background-color:#bbb;">
+   
+    <p></p>
+  </div> -->
+</div>
+    	
+    	 
+    	</div> 
+    		
+    		
+    		
+    	</div>
+        <div data-dojo-type="dijit/layout/AccordionContainer" title="About">
+        
+     <h4><b>Daniel</b></h4>
+      <p> My name is Daniel Rice. </p>
+      <p>I am currently pursuing my Master's Degree in Geographic Information Science from Texas State University in
+      San Marcos, Texas.</p> <p> I received my Bachelor's of Science in Environmental Studies from Texas State University in 2011.</p> <p>My areas of 
+      research interest are in water policy, water utility operations, and geographic information science.</p> <p> My research interests have led 
+      me to a career as the Water Loss Specialist at the Texas Water Development Board in Austin, Texas.
+      </p>
+  
+   
+    	<h4><b>Hannah</b></h4>
+      <p> I am a Master's Student at Texas State University focusing on Geographic Information Systems (GIS).</p> 
+      <p>I have a bachelor's degree from Texas A&M University - College Station in Chemistry and minor in Geology. </p>
+      <p>In addition to attending school full time, I also work full time as a GIS Technician at Guadalupe Valley 
+      Electric Cooperative in Seguin.</p>
+    
+   
+    	<h4><b>Zach</b></h4>
+      <p> I'm Zach Mayer.</p> <p> I am a undergraduate student studying Geographical Information Science.</p> <p> I graduate in December.</p>
+  
+		
+        </div>
+        <div data-dojo-type="dijit/layout/AccordionContainer" title="References">
+        <!--	Content for tab pane #3 -->
+        <p> 	  United States Drought Monitor. 2018. Map released: 2018. National Drought Mitigation Center. https://droughtmonitor.unl.edu. (Last accessed 3 November 2018).</p>
+		<p>		  Water Data for Texas. 2018. Texas Water Development Board. Texas Reservoirs.https://waterdatafortexas.org. (Last accessed 3 November 2018).</p>
+		<p>		  Historical Water Use Estimates. 2018. Texas Water Development Board. http://www.twdb.texas.gov/waterplanning/waterusesurvey/estimates/index.asp  (last accessed 4 November 2018).</p>
+		<p>		  Texas Drinking Water Watch. 2018. Texas Commission on Environmental Quality. https://dww2.tceq.texas.gov/DWW/  (last accessed 4 November 2018).</p>
+        
+        
+        </div>
+    </div>
+   <!-- <div data-dojo-type="dijit/layout/AccordionContainer" data-dojo-props="splitter:true, region:'bottom'">bottom pane </div>-->
+</div>
+
+</body>
+</html>
