@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    	
+    <link type="text/css" rel="stylesheet" href='https://ajax.googleapis.com/ajax/libs/dojo/1.12.1/dijit/themes/claro/claro.css'>
+   <!-- <script> -->
+ <!--   require([
+      "esri/Map",
+      "esri/layers/FeatureLayer",
+      "esri/views/MapView",
+      "esri/widgets/Legend",
+      "esri/widgets/Home",
+      "esri/widgets/Fullscreen"
+    ], function (
+      Map,
+      FeatureLayer,
+      MapView,
+      Legend, Home, Fullscreen
+    ) {
+
+    
+      var layer = new FeatureLayer({
+        portalItem: {
+          id: "dfe2d606134546f5a712e689d76540ac"
+        },
+        definitionExpression: "CNSTRCT_YR > 0",
+        title: "Building Footprints",
+        minScale: 72223.819286
+      });
+
+     // var map = new Map({
+       // basemap: {
+         // portalItem: {
+           // id: "4f2e99ba65e34bb8af49733d9778fb8e"
+       //   }
+       // },
+       // layers: [layer]
+      //  });
+
+      var view = new MapView({
+        map: map,
+        container: "viewDiv",
+        center: [-99.34, 31.13],
+        zoom: 6,
+        
+        });
+       
+     //   resizeAlign: "top-left"
+      
+      var applicationDiv = document.getElementById("applicationDiv");
+      var slider = document.getElementById("slider");
+      var sliderValue = document.getElementById("sliderValue");
+      var playButton = document.getElementById("playButton");
+      var titleDiv = document.getElementById("titleDiv");
+      var animation = null;
+<!-- <link type="text/css" rel="stylesheet" > -->
+<!-- function inputHandler() {
+        stopAnimation();
+        setYear(parseInt(slider.value));
+      }
+      slider.addEventListener("input", inputHandler);
+      slider.addEventListener("change", inputHandler);
+      playButton.addEventListener("click", function () {
+        if (playButton.classList.contains("toggled")) {
+          stopAnimation();
+        } else {
+          startAnimation();
+        }
+      }); 
+      view.ui.empty("top-left");
+      view.ui.add(titleDiv, "top-left");
+      view.ui.add(new Home({
+        view: view
+      }), "top-left");
+      view.ui.add(new Legend({
+        view: view
+      }), "bottom-left");
+      view.ui.add(new Fullscreen({
+        view: view,
+        element: applicationDiv
+      }), "top-right");
+      // When the layerview is available, setup hovering interactivity
+      view.whenLayerView(layer).then(setupHoverTooltip);
+      // Starts the application by visualizing year 1984
+      setYear(2009);
+      return {
+          type: "simple",
+          symbol: {
+            type: "simple-fill",
+            color: "rgb(0, 0, 0)",
+            outline: null
+          },
+          visualVariables: [{
+            type: "opacity",
+            field: "CNSTRCT_YR",
+            stops: opacityStops,
+            legendOptions: {
+              showLegend: false
+            }
+          }, {
+            type: "color",
+            field: "CNSTRCT_YR",
+            legendOptions: {
+              title: "Built:"
+            },
+            stops: [{
+              value: week,
+              color: "#0ff",
+              label: "in " + Math.floor(week)
+            }, {
+              value: week - 10,
+              color: "#f0f",
+              label: "in " + (Math.floor(week) - 20)
+            }, {
+              value: week - 50,
+              color: "#404",
+              label: "before " + (Math.floor(week) - 50)
+            }]
+          }]
+        };
+      }
+      // layerview
+   /*  function setupHoverTooltip {
+        var promise;
+        var highlight;
+
+        var tooltip = createTooltip();
+
+        view.on("pointer-move", function (event) {
+          if (promise) {
+            promise.cancel();
+          }
+
+          promise = view.hitTest(event.x, event.y)
+            .then(function(hit){
+              promise = null;
+
+              
+              if (highlight) {
+                highlight.remove();
+                highlight = null;
+              }
+
+              var results = hit.results.filter(function (result) {
+                return result.graphic.layer === layer;
+              });
+
+             
+              if (results.length) {
+                var graphic = results[0].graphic;
+                var screenPoint = hit.screenPoint;
+
+                highlight = layerview.highlight(graphic);
+                tooltip.show(screenPoint, "Built in " + graphic.getAttribute("CNSTRCT_YR"));
+              } else {
+                tooltip.hide();
+              }
+            });
+        });
+      }*/
+   /*   function startAnimation() {
+        stopAnimation();
+        animation = animate(parseFloat(slider.value));
+        playButton.classList.add("toggled");
+      }
+
+     
+      function stopAnimation() {
+        if (!animation) {
+          return;
+        }
+
+        animation.remove();
+        animation = null;
+        playButton.classList.remove("toggled");
+      }
+
+      
+      function animate(startValue) {
+        var animating = true;
+        var value = startValue;
+
+        var frame = function (timestamp) {
+          if (!animating) {
+            return;
+          }
+
+          value += 0.5;
+          if (value > 2013) {
+            value = 2009;
+          }
+
+          setYear(value);
+
+          // Update at 30fps
+          setTimeout(function () {
+            requestAnimationFrame(frame);
+          }, 1000 / 30);
+        };
+
+        frame();
+
+        return {
+          remove: function () {
+            animating = false;
+          }
+        };
+      } */
+
+      /**
+       * Creates a tooltip to display a the construction year of a building.
+       */
+    /*  function createTooltip() {
+        var tooltip = document.createElement("div");
+        var style = tooltip.style;
+
+        tooltip.setAttribute("role", "tooltip");
+        tooltip.classList.add("tooltip");
+
+        var textElement = document.createElement("div");
+        textElement.classList.add("esri-widget");
+        tooltip.appendChild(textElement);
+
+        view.container.appendChild(tooltip);
+
+        var x = 0;
+        var y = 0;
+        var targetX = 0;
+        var targetY = 0;
+        var visible = false;
+
+        // move the tooltip progressively
+        function move() {
+          x += (targetX - x) * 0.1;
+          y += (targetY - y) * 0.1;
+
+          if (Math.abs(targetX - x) < 1 && Math.abs(targetY - y) < 1) {
+            x = targetX;
+            y = targetY;
+          } else {
+            requestAnimationFrame(move);
+          }
+
+          style.transform = "translate3d(" + Math.round(x) + "px," + Math.round(y) + "px, 0)";
+        }
+
+        return {
+          show: function (point, text) {
+            if (!visible) {
+              x = point.x;
+              y = point.y;
+            }
+
+            targetX = point.x;
+            targetY = point.y;
+            style.opacity = 1;
+            visible = true;
+            textElement.innerHTML = text;
+
+            move();
+          },
+
+          hide: function () {
+            style.opacity = 0;
+            visible = false;
+          }
+        };
+      } */
+
+    /*}); */
+
+ <!-- </script>  -->
+   <!-- embed script -->
+ <!--  <style>.embed-container 
+   {position: relative; 
+   padding-bottom: 80%; 
+   height: 0; 
+   max-width: 100%;} 
+   .embed-container iframe, 
+   .embed-container object, 
+   .embed-container iframe
+   {position: absolute; 
+   top: 0; 
+   left: 0; 
+   width: 100%; 
+   height: 100%;} 
+   small{
+   	position: absolute; 
+   	z-index: 40; 
+   	bottom: 0; 
+   	margin-bottom: -15px;}
+   </style> -->
+    
+    
+    
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow:hidden;
+        }
+
+        #borderContainer {
+            width: 100%;
+            height: 100%;
+        }
+    
+    
+    </style>
+    <style>
+    	
+    #centerMap 
+    {
+		margin: 5px;
+		position: relative;
+		overflow: hidden;
+		top: 10px;
+		left:10px ;
+		width: 1050px;
+		height: 1050px;
+		text-align: center;
+		border: 2px solid;
+	}
+    	
+    </style>
+    
+    <style>
+    html,
+  /*  body {
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+  } */
+
+   /* #applicationDiv {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+   } */
+
+   /* #viewDiv {
+      width: 100%;
+      height: 100%;
+      flex: 1 1 auto;
+      order: 1;
+   } */
+
+  /*  #titleDiv {
+      font-weight: 400;
+      font-style: normal;
+      font-size: 1.2019rem;
+      padding: 10px;
+  } */
+ 
+ 	/*#sliderBox {
+ 		width: 7500px;
+ 		position: relative;
+ 	}
+
+    #sliderContainer {
+      flex: 1 1 80px;
+      order: 2;
+	  margin-left: 0px;
+      padding: 0 0px;
+    }
+
+    #sliderValue {
+      order: 1;
+      justify-content: center;
+      text-align: center;
+      font-size: 65%;
+    }
+
+    #sliderInnerContainer {
+      order: 2;
+      flex-direction: column;
+      justify-content: left;
+      
+      padding: 0 20px;
+    }
+
+    #sliderLabels {
+      order: 1;
+      justify-content: space-between;
+      margin-top: 15px;
+    }
+
+    #rangeWrapper {
+      flex: 1 1 auto;
+      order: 2;
+
+      position: absolute;
+      padding: 0 20px;
+    }
+
+    #slider {
+      width: 350px;
+    }
+   
+   /* #playButton {
+      flex: 0 0 100px;
+      order: 3;
+
+      margin: 20px 0;
+   } */
+
+  /*  .toggle-button {
+      display: flex;
+    }
+
+    .toggle-button.toggled .toggle-button-icon {
+      color: #CC1B1B;
+    }
+
+    .toggle-button .toggle-button-icon {
+      color: #1BCC1B;
+    }
+
+    .toggle-button> :nth-child(2) {
+      display: none;
+    }
+
+    .toggle-button.toggled> :nth-child(1) {
+      display: none;
+    }
+
+    .toggle-button.toggled> :nth-child(2) {
+      display: block;
+    }
+    
+
+    .tooltip {
+      position: absolute;
+      pointer-events: none;
+      transition: opacity 200ms;
+    }
+
+    .tooltip>div {
+      margin: 0 auto;
+      padding: 12px;
+      border-radius: 4px;
+      box-shadow: 0px 0px 4px rgba(255, 255, 255, 0.75);
+      transform: translate3d(-50%, -125%, 0);
+    }
+
+
+
+  </style>
+   
+   <!-- two column style script -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+    box-sizing: border-box;
+}
+
+/* Create two equal columns that floats next to each other */
+.column {
+    float: left;
+    width: 200px;
+    height: 20px;
+    
+    padding: 10px;
+    height: 300px; /* Should be removed. Only for demonstration */
+}
+
+/* Clear floats after the columns */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* slider  */
+
+.slidecontainer {
+    width: 100%;
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 25px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+</style>
+    
+    <script>dojoConfig = {parseOnLoad: true}</script>
+    <script src='https://ajax.googleapis.com/ajax/libs/dojo/1.12.1/dojo/dojo.js'></script>
+
+    <script>
+        require(["dojo/parser", "dijit/layout/AccordionContainer", "dijit/layout/BorderContainer", "dijit/layout/AccordionContainer"]);
+    </script>
+</head>
+<body class="claro">
+<div data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="design:'headline', gutters:true, liveSplitters:true" id="borderContainer">
+    
+    <div data-dojo-type="dijit/layout/AccordionContainer" data-dojo-props="splitter:true, region:'leading'">
+    	<div data-dojo-type="dijit/layout/AccordionContainer" title="Accordion Name 1">
+    		<!-- Content for accordion pane #1 -->
+    		<p><a href="https://droughtmonitor.unl.edu">United States Drought Monitor</a></p>
+			<p><a href="https://waterdatafortexas.org">Water Data for Texas</a></p>
+    		
+    	</div>
+        <div data-dojo-type="dijit/layout/AccordionContainer" title="Accordion Name 2">
+        	<!-- Content for accordion pane #2 -->
+        </div> 
+      <!-- <div data-dojo-type="dijit/layout/AccordionContainer" title="Accordion Name 3">
+        	Content for accordion pane #3
+      </div> -->
+    </div>
+    
+    <div data-dojo-type="dijit/layout/TabContainer" data-dojo-props="splitter:true, region:'center'">
+    	<div id="test" data-dojo-type="dijit/layout/AccordionContainer" title="Home">
+    		<!-- Content for tab pane #1 -->
+    		<div class="embed-container">
+    			<iframe 
+    			width="900" 
+    			height="800" 
+    			frameborder="0" 
+    			scrolling="no" 
+    			marginheight="0" 
+    			marginwidth="0" 
+    			title="Final_ProjectGEO4422" 
+    			src="https://www.arcgis.com/apps/Embed/index.html?webmap=095808fda2514d0fbcd721569678ddb2&extent=-107.815,25.8833,-93.6206,36.4075&zoom=true&previewImage=false&scale=true&legendlayers=true&disable_scroll=true&theme=light">
+    			
+    			
+    			</iframe>
+    			
+    			</div>
+    			
+    			<!--
+    				<style>
+    					.embed-container 
+    					{position: relative; 
+    						padding-bottom: 80%; 
+    						height: 0; 
+    						max-width: 100%;} 
+    						.embed-container iframe, 
+    						.embed-container object, 
+    						.embed-container 
+    						iframe{position: 
+    							absolute; 
+    							top: 0; 
+    							left: 0; 
+    							width: 100%; 
+    							height: 100%;} 
+    							small{position: 
+    								absolute; 
+    								z-index: 40; 
+    								bottom: 0; 
+    								margin-bottom: -15px;}
+    								</style>
+    								<div class="embed-container">
+    									<iframe 
+    									width="500" 
+    									height="400" 
+    									frameborder="0" 
+    									scrolling="no" 
+    									marginheight="0" 
+    									
+    									marginwidth="0" 
+    									title="Final_ProjectGEO4422" 
+    									src="//www.arcgis.com/apps/Embed/index.html?webmap=095808fda2514d0fbcd721569678ddb2&extent=-107.815,25.8833,-93.6206,36.4075&zoom=true&previewImage=false&scale=true&legendlayers=true&disable_scroll=true&theme=light">
+    									</iframe>
+    									</div>
+    			-->
+    			
+    			
+    			
+<!-- new embed-->
+
+
+
+		<!--<img src="finalProjectProposal_mockup.JPG" width="95%" height="95%">-->
+	
+		<!-- embedded code -->
+     <div id="sliderBox">
+    	
+    	<div class="row">
+  <div class="column" style="background-color:#aaa;">
+    <div class="slidecontainer">
+  				 <input type="range" min="1" max="210" value="105"> 
+				</div>
+    <p>2009 . . . . . . . . . . . . 2013</p>
+    <div id="sliderContainer" class="esri-widget">
+      		<span id="sliderValue"> </span>
+      	<!--	<div id="sliderInnerContainer">
+      			
+        	<!--	<div id="sliderLabels">
+          		<span> 2009 </span>
+          		<span> 2013 </span>
+       		</div> -->
+        		<!--<div class="slidecontainer">
+  
+       		 </div> -->
+      <!-- 	</div> -->
+     	</div>
+    
+  </div>
+  <!-- <div class="column" style="background-color:#bbb;">
+   
+    <p></p>
+  </div> -->
+</div>
+    	
+    	 
+    	</div> 
+    		
+    	</div>
+        <div data-dojo-type="dijit/layout/AccordionContainer" title="About">
+        
+     <h4><b>Daniel</b></h4>
+      <p> My name is Daniel Rice. </p>
+      <p>I am currently pursuing my Master's Degree in Geographic Information Science from Texas State University in
+      San Marcos, Texas.</p> <p> I received my Bachelor's of Science in Environmental Studies from Texas State University in 2011.</p> <p>My areas of 
+      research interest are in water policy, water utility operations, and geographic information science.</p> <p> My research interests have led 
+      me to a career as the Water Loss Specialist at the Texas Water Development Board in Austin, Texas.
+      </p>
+  
+   
+    	<h4><b>Hannah</b></h4>
+      <p> I am a Master's Student at Texas State University focusing on Geographic Information Systems (GIS).</p> 
+      <p>I have a bachelor's degree from Texas A&M University - College Station in Chemistry and minor in Geology. </p>
+      <p>In addition to attending school full time, I also work full time as a GIS Technician at Guadalupe Valley 
+      Electric Cooperative in Seguin.</p>
+    
+   
+    	<h4><b>Zach</b></h4>
+      <p> I'm Zach Mayer.</p> <p> I am a undergraduate student studying Geographical Information Science.</p> <p> I graduate in December.</p>
+  
+		
+        </div>
+        <div data-dojo-type="dijit/layout/AccordionContainer" title="References">
+        <!--	Content for tab pane #3 -->
+        <p> 	  United States Drought Monitor. 2018. Map released: 2018. National Drought Mitigation Center. https://droughtmonitor.unl.edu. (Last accessed 3 November 2018).</p>
+		<p>		  Water Data for Texas. 2018. Texas Water Development Board. Texas Reservoirs.https://waterdatafortexas.org. (Last accessed 3 November 2018).</p>
+		<p>		  Historical Water Use Estimates. 2018. Texas Water Development Board. http://www.twdb.texas.gov/waterplanning/waterusesurvey/estimates/index.asp  (last accessed 4 November 2018).</p>
+		<p>		  Texas Drinking Water Watch. 2018. Texas Commission on Environmental Quality. https://dww2.tceq.texas.gov/DWW/  (last accessed 4 November 2018).</p>
+        
+        
+        </div>
+    </div>
+   <!-- <div data-dojo-type="dijit/layout/AccordionContainer" data-dojo-props="splitter:true, region:'bottom'">bottom pane </div>-->
+</div>
+
+</body>
+</html>
