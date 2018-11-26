@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+  <title>Test Drought Tracker</title>
+
+  <style>
+    html, body,
+    #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+
+  <link rel="stylesheet" href="https:js.arcgis.com/4.9/esri/css/main.css">
+
+  <script src="https://js.arcgis.com/4.9/"></script>
+
+  <script>
+    require([
+    "esri/Map",
+    "esri/views/MapView",
+    "esri/layers/FeatureLayer",
+    "esri/widgets/LayerList"
+    ], function(
+    Map, MapView, FeatureLayer, LayerList
+    ){
+    
+
+      var drought = new FeatureLayer({
+        url: "https://services9.arcgis.com/Fkrv4ioSgHZRwY1o/arcgis/rest/services/TexasDroughts09to13Final/FeatureServer?token=hFJmT3QdfjGro2vuDqjFHKZLviAyGhzaCMfrJLtZKtrH6BH7CIPLo010w9NXvYSc3zHs_hkTrPVpC7hsmpVZPo1e7eK2FDMXLdiEsrCHge5SbD9jxSK0FNJjNVCguFtySBXRhZSsfYgGRl7GnAa1YHfibn33Tmu4I_Dz-KX4RrsBu7uJipU8HaFHKo5xpMuQlLQpECeXkfVRH6MNG-WIrelKUkcE6tyRWeSHfc9CTNf84ADuoiIdcZ4tn-RoDBWz",
+        
+          });
+
+
+
+      var webmap = new Map({
+        basemap: "topo",
+        layers: [drought]
+      });
+
+      var view = new MapView({
+        map: webmap,
+        container: "viewDiv",
+        zoom: 6,
+        center: [-98.426085, 30.803870]
+      });
+
+      view.when(function(){
+        var layerList = new LayerList({
+          view: view
+        });
+
+      view.ui.add(layerList, "top-right");
+
+      });
+    });
+    </script>
+  </head>
+
+  <body>
+      <div id="viewDiv"></div>
+  </body>
+
+  </html>
