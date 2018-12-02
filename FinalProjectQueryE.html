@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Final Project Query Tool</title>
+
+  <link rel="stylesheet" href="https://js.arcgis.com/4.8/esri/css/main.css">
+  <script src="https://js.arcgis.com/4.8/"></script>
+
+  <style>
+    html,
+    body,
+    #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+    
+    #draw-polygon {
+	height: 100px;
+	width: 100px;
+	font-family: verdana;
+	background-color: white;
+	position: absolute; 
+	bottom: 25px;
+	left:0px;
+}
+    
+    #optionsDiv {
+			background-color: dimgray;
+			color: white;
+			padding: 10px;
+			width: 350px;
+		}
+		
+		.esri-popup .esri-popup-header .esri-title {
+			font-size: 18px;
+			font-weight: bolder;
+		}
+		
+		.esri-popup .esri-popup-body .esri-popup-content {
+			font-size: 14px;
+			
+		}
+		
+    #footer {
+    	text-alignment: center;
+    }
+
+  </style>
+
+  <script>
+  	var dateSelection;
+  	var popupTemplate;
+  	var percentage;
+  
+    require([
+    	 "esri/views/2d/draw/Draw",
+    	 "esri/Map",
+        "esri/views/MapView",
+      "esri/Graphic",
+      "esri/geometry/Polygon",
+      "esri/geometry/geometryEngine",
+        "esri/layers/FeatureLayer",
+        "esri/layers/GraphicsLayer",
+		"esri/tasks/QueryTask",
+		"esri/tasks/support/Query",
+		"dojo/_base/array",
+		"dojo/dom",
+		"dojo/on",
+		"dojo/domReady!",
+		"esri/geometry/SpatialReference",
+      "esri/geometry/projection"
+      ],
+     
+      function(
+       Draw, Map, MapView, Graphic, Polygon, geometryEngine, FeatureLayer, GraphicsLayer, QueryTask, Query, arrayUtils, dom, on, SpatialReference, projection
+      ) {
+
+        
+        var featureLayer = new FeatureLayer({
+          url: "https://services9.arcgis.com/Ma7hMGk0KKCHeeUZ/arcgis/rest/services/TopLakeDataPoints/FeatureServer/0"
+        });
+
+        
+        var map = new Map({
+          basemap: "topo",
+          layers: [featureLayer]
+        });
+
+        var view = new MapView({
+          container: "viewDiv",
+          map: map,
+          zoom: 6,
+          center: [-98.426085, 30.803870]
+        });
+
+ view.ui.add("draw-polygon", "bottom-left");
+
+      var draw = new Draw({
+        view: view
+      });
+
+      // draw polygon button
+      document.getElementById("draw-polygon").addEventListener("click",
+        function() {
+          view.graphics.removeAll();
+          // create() will return a reference to an instance of PolygonDrawAction
+          var action = draw.create("polygon");
+
+          // focus the view to activate keyboard shortcuts for drawing polygons
+          view.focus();
+
+          // listen polygonDrawAction events to give immediate visual feedback
+          // to users as the polygon is being drawn on the view.
+          action.on("vertex-add", drawPolygon);
+          action.on("cursor-update", drawPolygon);
+          action.on("vertex-remove", drawPolygon);
+          action.on("redo", drawPolygon);
+          action.on("undo", drawPolygon);
+          action.on("draw-complete", drawPolygon);
+        });
+
+      // this function is called from the polygon draw action events
+      // to provide a visual feedback to users as they are drawing a polygon
+      function drawPolygon(event) {
+        var vertices = event.vertices;
+
+        //remove existing graphic
+        view.graphics.removeAll();
+
+        // create a new polygon
+        var polygon = new Polygon({
+          rings: vertices,
+          spatialReference: view.spatialReference
+        });
+
+        // create a new graphic representing the polygon, add it to the view
+        var graphic = new Graphic({
+          geometry: polygon,
+          symbol: {
+            type: "simple-fill", // autocasts as SimpleFillSymbol
+            color: [178, 102, 234, 0.8],
+            style: "solid",
+            outline: { // autocasts as SimpleLineSymbol
+              color: [255, 255, 255],
+              width: 2
+            }
+          }
+        });
+
+        view.graphics.add(graphic);
+
+        // calculate the area of the polygon
+        var area = geometryEngine.geodesicArea(polygon, "acres");
+        if (area < 0) {
+          // simplify the polygon if needed and calculate the area again
+          var simplifiedPolygon = geometryEngine.simplify(polygon);
+          if (simplifiedPolygon) {
+            area = geometryEngine.geodesicArea(simplifiedPolygon, "acres");
+          }
+        }
+        // start displaying the area of the polygon
+        labelAreas(polygon, area);
+      }
+
+      //Label polyon with its area
+      function labelAreas(geom, area) {
+        var graphic = new Graphic({
+          geometry: geom.centroid,
+          symbol: {
+            type: "text",
+            color: "black",
+            haloColor: "black",
+            haloSize: "1px",
+            text: area.toFixed(2) + " acres",
+            xoffset: 3,
+            yoffset: 3,
+            font: { // autocast as Font
+              size: 14,
+              family: "sans-serif"
+            }
+          }
+        });
+        view.graphics.add(graphic);
+      }
+
+
+       var popUrl=
+			"https://services9.arcgis.com/Ma7hMGk0KKCHeeUZ/arcgis/rest/services/TopLakeDataPoints/FeatureServer/0";
+			  
+        featureLayer.when(function() {
+          view.goTo(featureLayer.fullExtent);
+        });
+        var resultsLayer = new GraphicsLayer();
+			
+			var qTask = new QueryTask({
+				url: popUrl,
+			});
+			
+			var params = new Query({
+				returnGeometry: true,
+				outFields: ["*"],
+				outSpatialReference: 
+				{
+          			"wkid": 102100
+          		}
+				
+			});
+			
+			//The varibale determines the position of the base map gallery.
+			view.when(function() {
+				view.ui.add("optionsDiv", "bottom-right");
+				on(dom.byId("doBtn"), "click", doQuery);
+			});
+			
+			var attributeName = dom.byId("attSelect");
+			var expressionSign = dom.byId("signSelect");
+			var value = dom.byId("valSelect");  
+			
+			function doQuery() {
+				dateSelection = document.getElementById("attSelect").value;
+				popupTemplate = {
+					title: "{RES_NAME}",
+					fieldInfos: [{
+					fieldName: "{RES_NAME_1}",
+					label: "{STATUS}",
+					format: {
+						places: 0,
+						digitSeperator: true
+					}
+				}],
+					content: 
+					"<b>Lake Name:" + "</b> {RES_NAME} " +
+					"<br> <b>Lake Volume Capacity:" + "</b> {level_la_1} " + "<br>" +
+					/* "<br> <b>Lake Percent full:" + "</b> {F10_6_2009}/{level_la_1} =  " + */
+					"<strong>" + dateSelection + ": </strong>" +
+					"{" + dateSelection + "}" + "<br>"
+				};  
+				
+				
+				resultsLayer.removeAll();
+				params.where = attributeName.value + expressionSign.value + value.value;
+				qTask.execute(params)
+				.then(getResults)
+				.catch(promiseRejected);
+			}
+			
+			function getResults(response) {
+				
+				var popResults = arrayUtils.map(response.features, function(	
+				feature) {
+					feature.popupTemplate = popupTemplate;
+					return feature;
+				});
+
+				resultsLayer.addMany(popResults);
+				view.goTo(popResults).then(function() {
+					view.popup.open({
+						features: popResults,
+            			featureMenuOpen: true,
+            			updateLocationEnabled: true
+					});
+				});
+				dom.byId("printResults").innerHTML = popResults.length + 
+				 " results found for " + document.getElementById("attSelect").value + "!";
+				}
+				
+				function promiseRejected(error) {
+					console.error("Promise rejected: ", error.message);
+			
+			}
+        
+        
+      });
+      
+  </script>
+</head>
+
+<body>
+  <div id="viewDiv">
+  	<div id="draw-polygon" class="esri-widget--button esri-widget esri-interactive" title="Draw and measure polygon">
+      				<p>Click here to calculate the
+      				area affected by drought</p>
+</div>
+  	 </div>
+  
+  <div id="optionsDiv"> 
+		<h2>Level Lakes</h2>
+		<select class="esri-widget" id="attSelect">
+			<option value="F10_6_2009">10-6-2009</option>
+			<option value="F10_13_2009">10-13-2009</option>
+			<option value="F10_20_2009">10-20-2009</option>
+			<option value="F10_27_2009">10-27-2009</option>
+			<option value="F11_3_2009">11-3-2009</option>
+			<option value="F11_10_2009">11-10-2009</option>
+			<option value="F11_17_2009">11-17-2009</option>
+			<option value="F11_24_2009">11-24-2009</option>
+			<option value="F12_1_2009">12-1-2009</option>
+			<option value="F1_8_2009">12-8-2009</option>
+			<option value="F12_15_2009">12-15-2009</option>
+			<option value="F12_22_2009">12-22-2009</option>
+			<option value="F12_29_2009">12-29-2009</option>
+			<option value="F1_5_2010">1-5-2010</option>
+			<option value="F1_12_2010">1-12-2010</option>
+			<option value="F1_19_2010">1-19-2010</option>
+			<option value="F1_26_2010">1-26-2010</option>
+			<option value="F2_2_2010">2-2-2010</option>
+			<option value="F2_9_2010">2-9-2010</option>
+			<option value="F2_16_2010">2-16-2010</option>
+			<option value="F2_23_2010">2-23-2010</option>
+			<option value="F3_2_2010">3-2-2010</option>
+			<option value="F3_9_2010">3-9-2010</option>
+			<option value="F3_16_2010">3-16-2010</option>
+			<option value="F3_23_2010">3-23-2010</option>
+			<option value="F3_30_2010">3-30-2010</option>
+			<option value="F4_6_2010">4-6-2010</option>
+			<option value="F4_13_2010">4-13-2010</option>
+			<option value="F4_20_2010">4-20-2010</option>
+			<option value="F5_4_2010">5-4-2010</option>
+			<option value="F5_11_2010">5-11-2010</option>
+			<option value="F5_18_2010">5-18-2010</option>
+			<option value="F5_25_2010">5-25-2010</option>
+			<option value="F6_1_2010">6-1-2010</option>
+			<option value="F6_8_2010">6-8-2010</option>
+			<option value="F6_15_2010">6-15-2010</option>
+			<option value="F6_22_2010">6-22-2010</option>
+			<option value="F6_29_2010">6-29-2010</option>
+			<option value="F7_6_2010">7-6-2010</option>
+			<option value="F7_13_2010">7-13-2010</option>
+			<option value="F7_20_2010">7-20-2010</option>
+			<option value="F7_27_2010">7-27-2010</option>
+			<option value="F8_3_2010">8-3-2010</option>
+			<option value="F8_10_2010">8-10-2010</option>
+			<option value="F8_17_2010">8-17-2010</option>
+			<option value="F8_24_2010">8-24-2010</option>
+			<option value="F8_31_2010">8-31-2010</option>
+			<option value="F9_7_2010">9-7-2010</option>
+			<option value="F9_14_2010">9-14-2010</option>
+			<option value="F9_21_2010">9-21-2010</option>
+			<option value="F9_28_2010">9-28-2010</option>
+			<option value="F10_5_2010:">10-5-2010</option>
+			<option value="F10_12_2010">10-12-2010</option>
+			<option value="F10_19_2010">10-19-2010</option>
+			<option value="F10_26_2010">10-26-2010</option>
+			<option value="F11_2_2010">11-2-2010</option>
+			<option value="F11_9_2010">11-9-2010</option>
+			<option value="F11_16_2010">11-16-2010</option>
+			<option value="F11_23_2010">11-23-2010</option>
+			<option value="F11_30_2010">11-30-2010</option>
+			<option value="F12_7_2010">12-7-2010</option>
+			<option value="F12_14_2010 ">12-14-2010 </option>
+			<option value="F12_21_2010">12-21-2010</option>
+			<option value="F12_28_2010">12-28-2010</option>
+			<option value="F1_4_2011">1-4-2011</option>
+			<option value="F1_11_2011">1-11-2011</option>
+			<option value="F1_18_2011">1-18-2011</option>
+			<option value="F1_25_2011">1-25-2011</option>
+			<option value="F2_1_2011">2-1-2011</option>
+			<option value="F2_8_2011">2-8-2011</option>
+			<option value="F2_15_2011">2-15-2011</option>
+			<option value="F2_22_2011">2-22-2011</option>
+			<option value="F3_1_2011">3-1-2011</option>
+			<option value="F3_8_2011">3-8-2011</option>
+			<option value="F3_15_2011">3-15-2011</option>
+			<option value="F3_22_2011">3-22-2011</option>
+			<option value="F3_29_2011">3-29-2011</option>
+			<option value="F4_5_2011">4-5-2011</option>
+			<option value="F4_12_2011">4-12-2011</option>
+			<option value="F4_26_2011">4-26-2011</option>
+			<option value="F5_3_2011">5-3-2011</option>
+			<option value="F5_10_2011">5-10-2011</option>
+			<option value="F5_17_2011">5-17-2011</option>
+			<option value="F5_24_2011">5-24-2011</option>
+			<option value="F5_31_2011">5-31-2011</option>
+			<option value="F6_7_2011">6-7-2011</option>
+			<option value="F6_14_2011">6-14-2011</option>
+			<option value="F6_21_2011">6-21-2011</option>
+			<option value="F6_28_2011">6-28-2011</option>
+			<option value="F7_5_2011">7-5-2011</option>
+			<option value="F7_12_2011">7-12-2011</option>
+			<option value="F7_19_2011">7-19-2011</option>
+			<option value="F7_26_2011">7-26-2011</option>
+			<option value="F8_2_2011">8-2-2011</option>
+			<option value="F8_9_2011">8-9-2011</option>
+			<option value="F8_16_2011">8-16-2011</option>
+			<option value="F8_23_2011">8-23-2011</option>
+			<option value="F8_30_2011">8-30-2011</option>
+			<option value="F9_6_2011">9-6-2011</option>
+			<option value="F9_13_2011">9-13-2011</option>
+			<option value="F9_20_2011">9-20-2011</option>
+			<option value="F9_27_2011">9-27-2011</option>
+			<option value="F10_4_2011">10-4-2011</option>
+			<option value="F10_11_2011">10-11-2011</option>
+			<option value="F10_18_2011">10-18-2011</option>
+			<option value="F10_25_2011">10-25-2011</option>
+			<option value="F11_1_2011">11-1-2011</option>
+			<option value="F11_8_2011">11-8-2011</option>
+			<option value="F11_15_2011">11-15-2011</option>
+			<option value="F11_22_2011">11-22-2011</option>
+			<option value="F11_29_2011">11-29-2011</option>
+			<option value="F12_6_2011">12-6-2011</option>
+			<option value="F1_13_2011">12-13-2011</option>
+			<option value="F12_20_2011">12-20-2011</option>
+			<option value="F12_27_2011">12-27-2011</option>
+			<option value="F1_3_2012">1-3-2012</option>
+			<option value="F1_10_2012">1-10-2012</option>
+			<option value="F1_17_2012">1-17-2012</option>
+			<option value="F1_24_2012">1-24-2012</option>
+			<option value="F1_31_2012">1-31-2012</option>
+			<option value="F2_7_2012">2-7-2012</option>
+			<option value="F2_14_2012">2-14-2012</option>
+			<option value="F2_21_2012">2-21-2012</option>
+			<option value="F2_28_2012">2-28-2012</option>
+			<option value="F3_6_2012">3-6-2012</option>
+			<option value="F3_13_2012">3-13-2012</option>
+			<option value="F3_20_2012">3-20-2012</option>
+			<option value="F3_27_2012">3-27-2012</option>
+			<option value="F4_3_2012">4-3-2012</option>
+			<option value="F4_10_2012">4-10-2012</option>
+			<option value="F4_17_2012">4-17-2012</option>
+			<option value="F4_24_2012">4-24-2012</option>
+			<option value="F5_1_2012">5-1-2012</option>
+			<option value="F5_8_2012">5-8-2012</option>
+			<option value="F5_15_2012">5-15-2012</option>
+			<option value="F5_22_2012">5-22-2012</option>
+			<option value="F5_29_2012">5-29-2012</option>
+			<option value="F6_5_2012">6-5-2012</option>
+			<option value="F6_12_2012">6-12-2012</option>
+			<option value="F6_19_2012">6-19-2012</option>
+			<option value="F6_26_2012">6-26-2012</option>
+			<option value="F7_3_2012">7-3-2012</option>
+			<option value="F7_10_2012">7-10-2012</option>
+			<option value="F7_17_2012">7-17-2012</option>
+			<option value="F7_24_2012">7-24-2012</option>
+			<option value="F7_31_2012">7-31-2012</option>
+			<option value="F8_7_2012">8-7-2012</option>
+			<option value="F8_14_2012">8-14-2012</option>
+			<option value="F8_21_2012">8-21-2012</option>
+			<option value="F8_28_2012">8-28-2012</option>
+			<option value="F9_4_2012">9-4-2012</option>
+			<option value="F9_11_2012">9-11-2012</option>
+			<option value="F9_18_2012">9-18-2012</option>
+			<option value="F9_25_2012">9-25-2012</option>
+			<option value="F10_2_2012">10-2-2012</option>
+			<option value="F10_9_2012">10-9-2012</option>
+			<option value="F10_16_2012">10-16-2012</option>
+			<option value="F10_23_2012">10-23-2012</option>
+			<option value="F10_30_2012">10-30-2012</option>
+			<option value="F11_6_2012">11-6-2012</option>
+			<option value="F11_13_2012">11-13-2012</option>
+			<option value="F11_20_2012">11-20-2012</option>
+			<option value="F11_27_2012">11-27-2012</option>
+			<option value="F12_4_2012">12-4-2012</option>
+			<option value="F12_11_2012">12-11-2012</option>
+			<option value="F12_18_2012">12-18-2012</option>
+			<option value="F12_25_2012">12-25-2012</option>
+			<option value="F1_1_2013">1-1-2013</option>
+			<option value="F1_8_2013">1-8-2013</option>
+			<option value="F1_15_2013">1-15-2013</option>
+			<option value="F1_22_2013">1-22-2013</option>
+			<option value="F1_29_2013">1-29-2013</option>
+			<option value="F2_5_2013">2-5-2013</option>
+			<option value="F2_12_2013">2-12-2013</option>
+			<option value="F2_19_2013">2-19-2013</option>
+			<option value="F2_26_2013">2-26-2013</option>
+			<option value="F3_5_2013">3-5-2013</option>
+			<option value="F3_12_2013">3-12-2013</option>
+			<option value="F3_19_2013">3-19-2013</option>
+			<option value="F3_26_2013">3-26-2013</option>
+			<option value="F4_2_2013">4-2-2013</option>
+			<option value="F4_9_2013">4-9-2013</option>
+			<option value="F4_16_2013">4-16-2013</option>
+			<option value="F4_23_2013">4-23-2013</option>
+			<option value="F4_30_2013">4-30-2013</option>
+			<option value="F5_7_2013">5-7-2013</option>
+			<option value="F5_14_2013">5-14-2013</option>
+			<option value="F5_21_2013">5-21-2013</option>
+			<option value="F5_28_2013">5-28-2013</option>
+			<option value="F6_4_2013">6-4-2013</option>
+			<option value="F6_11_2013">6-11-2013</option>
+			<option value="F6_18_2013">6-18-2013</option>
+			<option value="F6_25_2013">6-25-2013</option>
+			<option value="F7_2_2013">7-2-2013</option>
+			<option value="F7_9_2013">7-9-2013</option>
+			<option value="F7_16_2013">7-16-2013</option>
+			<option value="F7_23_2013">7-23-2013</option>
+			<option value="F7_30_2013">7-30-2013</option>
+			<option value="F8_6_2013">8-6-2013</option>
+			<option value="F8_13_2013">8-13-2013</option>
+			<option value="F8_20_2013">8-20-2013</option>
+			<option value="F8_27_2013">8-27-2013</option>
+			<option value="F9_3_2013">9-3-2013</option>
+			<option value="F9_10_2013">9-10-2013</option>
+			<option value="F9_17_2013">9-17-2013</option>
+			<option value="F9_24_2013">9-24-2013</option>
+			
+			
+		</select>
+		<select class="esri-widget" id="signSelect">
+			<option value=">">is greater than</option>
+			<option value="<">is less than</option>
+		</select>
+		<select class="esri-widget" id="valSelect">
+			<option value="50000">50000</option>
+			<option value="100000">100000</option>
+			<option value="500000">500000</option>
+			<option value="1000000">1000000</option>
+			
+		</select>
+			<br>
+			<br>
+			<button class="esri-widget" id="doBtn">Do Query</button>
+			<br>
+			<p><span id="printResults"> </span></p>
+		</div> 
+		
+		
+</body>
+
+</html>
